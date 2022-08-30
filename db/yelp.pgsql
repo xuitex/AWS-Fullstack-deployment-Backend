@@ -33,6 +33,9 @@ CREATE TABLE public.restaurants (
 );
 
 
+
+
+
 ALTER TABLE public.restaurants OWNER TO postgres;
 
 --
