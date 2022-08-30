@@ -1,0 +1,40 @@
+version: 0.2
+env:
+  variables:
+    REPOSITORY_URI: "sloppynetworks/aws-fullstack-backend"
+  secrets-manager:
+    DOCKERHUB_PASSWORD: "yelp-dockerhub:password"
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+  pre_build:
+    commands:
+      - echo login to dockerhub
+      - echo "$DOCKERHUB_PASSWORD" | docker login --username sloppynetworks --password-stdin
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo Installing node modules
+
+      # - echo parameter value is $REACT_URL
+      # - echo "parameter value is $REACT_URL"
+      - npm install
+  build:
+    commands:
+      - echo Running tests
+      # - npm run test
+
+      - echo build and push docker image
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      # - printf '[{"name":"Express", "ImageURI":%s}]' $REPOSITORY_URI > imagedefinitions.json
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+
+  post_build:
+    commands:
+artifacts:
+  files:
+    - imageDetail.json
+    - taskdef.json
+    - appspec.yaml

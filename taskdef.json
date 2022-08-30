@@ -1,0 +1,65 @@
+{
+  "executionRoleArn": "arn:aws:iam::040497317401:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::040497317401:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "Express",
+      "image": "<IMAGE>",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 3001,
+          "protocol": "tcp",
+          "containerPort": 3001
+        }
+      ],
+      "logConfiguration": {
+          "logDriver": "awslogs",
+          "secretOptions": null,
+          "options": {
+              "awslogs-group": "/ecs/Node-backend",
+              "awslogs-region": "us-east-2",
+              "awslogs-stream-prefix": "ecs"
+          }
+      },
+      
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "name": "PGDATABASE",
+          "value": "yelp"
+        },
+        {
+          "name": "PGHOST",
+          "value": "yelp2-databased.cdqkdxlighii.us-east-2.rds.amazonaws.com"
+        },
+        {
+          "name": "PGPORT",
+          "value": "5432"
+        },
+        {
+          "name": "PGUSER",
+          "value": "postgres"
+        }
+
+      ],
+      "secrets": [
+        {
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:040497317401:secret:PGPASSWORD-ggxJ2W:PGPASSWORD::",
+          "name": "PGPASSWORD"
+        }
+      ]
+    }
+    
+  ],
+  
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+
+  "family": "Node-backend"
+}
